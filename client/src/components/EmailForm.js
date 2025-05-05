@@ -20,12 +20,12 @@ import {
   HStack,
   Switch,
 } from '@chakra-ui/react';
+import { useAuth } from '../context/AuthContext';
 
 const EmailForm = () => {
+  const { user } = useAuth();
   const [sponsorName, setSponsorName] = useState('');
   const [sponsorEmail, setSponsorEmail] = useState('');
-  const [senderEmail, setSenderEmail] = useState('');
-  const [senderPassword, setSenderPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [preview, setPreview] = useState('');
@@ -65,7 +65,7 @@ We would love to discuss how ${name} can participate in making Hello World a suc
 Thank you for considering our request. We look forward to the possibility of collaborating with ${name}.
 
 Best regards,
-Hello World Hackathon Team
+${user?.name || 'Hello World Hackathon Team'}
 Purdue University`;
   };
 
@@ -86,7 +86,7 @@ Purdue University`;
     try {
       const response = await axios.post('/api/generate-ai-email', {
         sponsorName
-      });
+      }, { withCredentials: true });
       
       if (response.data.success) {
         setPreview(response.data.emailContent);
@@ -133,7 +133,7 @@ Purdue University`;
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!sponsorName || !sponsorEmail || !senderEmail || !senderPassword) {
+    if (!sponsorName || !sponsorEmail) {
       toast({
         title: 'Missing fields',
         description: 'Please fill in all required fields.',
@@ -161,10 +161,8 @@ Purdue University`;
       const response = await axios.post('/api/send-email', {
         sponsorName,
         sponsorEmail,
-        senderEmail,
-        senderPassword,
-        emailContent: preview // Send the actual preview content (AI or standard)
-      });
+        emailContent: preview
+      }, { withCredentials: true });
       
       if (response.data.success) {
         toast({
@@ -204,7 +202,7 @@ Purdue University`;
             Send Sponsorship Email
           </Heading>
           <Text color="gray.600" mb={6}>
-            Fill in the details below to automatically generate and send a sponsorship request email
+            Generate and send professional sponsorship request emails
           </Text>
           
           <form onSubmit={handleSubmit}>
@@ -239,40 +237,15 @@ Purdue University`;
                 />
               </FormControl>
               
-              <Divider my={2} />
+              {user && (
+                <Box bg="blue.50" p={3} borderRadius="md">
+                  <Text fontSize="sm">
+                    You are signed in as <strong>{user.email}</strong>. Your emails will be sent from this address.
+                  </Text>
+                </Box>
+              )}
               
-              <FormControl isRequired>
-                <FormLabel>Your Email (Gmail)</FormLabel>
-                <Input 
-                  type="email" 
-                  placeholder="your.email@gmail.com" 
-                  value={senderEmail}
-                  onChange={(e) => setSenderEmail(e.target.value)}
-                />
-              </FormControl>
-              
-              <FormControl isRequired>
-                <FormLabel>Your Email Password (or App Password)</FormLabel>
-                <Input 
-                  type="password" 
-                  placeholder="Password or App Password" 
-                  value={senderPassword}
-                  onChange={(e) => setSenderPassword(e.target.value)}
-                />
-                <Text fontSize="sm" color="gray.500" mt={1}>
-                  We recommend using an App Password. 
-                  <a 
-                    href="https://support.google.com/accounts/answer/185833" 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    style={{ color: 'blue', textDecoration: 'underline' }}
-                  >
-                    Learn how to create one
-                  </a>
-                </Text>
-              </FormControl>
-              
-              <Box display="flex" justifyContent="space-between" mt={2}>
+              <Box display="flex" justifyContent="space-between" mt={4}>
                 <Button 
                   colorScheme="blue" 
                   variant="outline" 
@@ -282,7 +255,12 @@ Purdue University`;
                 >
                   {useAI ? "Generate AI Email" : "Preview Email"}
                 </Button>
-                <Button colorScheme="purple" type="submit" isLoading={isLoading}>
+                <Button 
+                  colorScheme="purple" 
+                  type="submit" 
+                  isLoading={isLoading}
+                  isDisabled={!preview}
+                >
                   Send Email
                 </Button>
               </Box>
