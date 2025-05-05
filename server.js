@@ -3,6 +3,10 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const app = express();
@@ -13,8 +17,89 @@ const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
+app.use(session({
+  secret: 'helloworld-hackathon-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Configure Google Strategy
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: '/auth/google/callback',
+    scope: ['profile', 'email', 'https://www.googleapis.com/auth/gmail.send']
+  },
+  (accessToken, refreshToken, profile, done) => {
+    // Store tokens in user session
+    const user = {
+      id: profile.id,
+      displayName: profile.displayName,
+      email: profile.emails[0].value,
+      accessToken: accessToken,
+      refreshToken: refreshToken
+    };
+    return done(null, user);
+  }
+));
+
+// Serialize and deserialize user
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+// Auth routes
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email', 'https://www.googleapis.com/auth/gmail.send'] })
+);
+
+app.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: 'http://localhost:3000' }),
+  (req, res) => {
+    // Successful authentication, redirect to client
+    res.redirect('http://localhost:3000/dashboard');
+  }
+);
+
+app.get('/api/user', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json({ 
+      isAuthenticated: true, 
+      user: {
+        id: req.user.id,
+        name: req.user.displayName,
+        email: req.user.email
+      }
+    });
+  } else {
+    res.json({ isAuthenticated: false });
+  }
+});
+
+app.get('/auth/logout', (req, res) => {
+  req.logout(function(err) {
+    if (err) { return next(err); }
+    res.redirect('http://localhost:3000');
+  });
+});
 
 // Email template function
 function generateEmailTemplate(sponsorName) {
@@ -124,27 +209,36 @@ app.post('/api/generate-ai-email', async (req, res) => {
   }
 });
 
-// Email sending endpoint
+// Email sending endpoint with Google OAuth
 app.post('/api/send-email', async (req, res) => {
-  const { sponsorName, sponsorEmail, senderEmail, senderPassword, emailContent } = req.body;
+  // Check if user is authenticated
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ success: false, message: 'User not authenticated' });
+  }
+
+  const { sponsorName, sponsorEmail, emailContent } = req.body;
   
-  if (!sponsorName || !sponsorEmail || !senderEmail || !senderPassword) {
+  if (!sponsorName || !sponsorEmail) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
 
   try {
-    // Create transporter
+    // Create transporter with OAuth2
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: senderEmail,
-        pass: senderPassword
+        type: 'OAuth2',
+        user: req.user.email,
+        accessToken: req.user.accessToken,
+        refreshToken: req.user.refreshToken,
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET
       }
     });
 
     // Email content
     const mailOptions = {
-      from: senderEmail,
+      from: req.user.email,
       to: sponsorEmail,
       subject: `Hello World Hackathon - Sponsorship Opportunity for ${sponsorName}`,
       text: emailContent || generateEmailTemplate(sponsorName)
@@ -156,7 +250,7 @@ app.post('/api/send-email', async (req, res) => {
     res.status(200).json({ success: true, message: 'Email sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
-    res.status(500).json({ success: false, message: 'Failed to send email' });
+    res.status(500).json({ success: false, message: 'Failed to send email', error: error.message });
   }
 });
 
