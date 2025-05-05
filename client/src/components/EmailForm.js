@@ -17,6 +17,8 @@ import {
   AlertDescription,
   Textarea,
   CloseButton,
+  HStack,
+  Switch,
 } from '@chakra-ui/react';
 
 const EmailForm = () => {
@@ -25,8 +27,10 @@ const EmailForm = () => {
   const [senderEmail, setSenderEmail] = useState('');
   const [senderPassword, setSenderPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [preview, setPreview] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+  const [useAI, setUseAI] = useState(true);
   
   const toast = useToast();
 
@@ -65,7 +69,48 @@ Hello World Hackathon Team
 Purdue University`;
   };
 
-  const handlePreview = () => {
+  const generateAIEmail = async () => {
+    if (!sponsorName) {
+      toast({
+        title: 'Sponsor name required',
+        description: 'Please enter a sponsor name to generate an AI email.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    
+    setIsGeneratingAI(true);
+    
+    try {
+      const response = await axios.post('/api/generate-ai-email', {
+        sponsorName
+      });
+      
+      if (response.data.success) {
+        setPreview(response.data.emailContent);
+        setShowPreview(true);
+      } else {
+        throw new Error(response.data.message || 'Failed to generate AI email');
+      }
+    } catch (error) {
+      toast({
+        title: 'Error generating AI email',
+        description: error.message || 'Something went wrong. Falling back to standard template.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      // Fallback to standard template
+      setPreview(generateEmailTemplate(sponsorName));
+      setShowPreview(true);
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
+  const handlePreview = async () => {
     if (!sponsorName) {
       toast({
         title: 'Sponsor name required',
@@ -77,8 +122,12 @@ Purdue University`;
       return;
     }
     
-    setPreview(generateEmailTemplate(sponsorName));
-    setShowPreview(true);
+    if (useAI) {
+      await generateAIEmail();
+    } else {
+      setPreview(generateEmailTemplate(sponsorName));
+      setShowPreview(true);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -95,6 +144,17 @@ Purdue University`;
       return;
     }
     
+    if (!preview) {
+      toast({
+        title: 'No email content',
+        description: 'Please generate or preview an email first.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -102,7 +162,8 @@ Purdue University`;
         sponsorName,
         sponsorEmail,
         senderEmail,
-        senderPassword
+        senderPassword,
+        emailContent: preview // Send the actual preview content (AI or standard)
       });
       
       if (response.data.success) {
@@ -118,6 +179,7 @@ Purdue University`;
         setSponsorName('');
         setSponsorEmail('');
         setShowPreview(false);
+        setPreview('');
       } else {
         throw new Error(response.data.message || 'Failed to send email');
       }
@@ -166,6 +228,17 @@ Purdue University`;
                 />
               </FormControl>
               
+              <FormControl display="flex" alignItems="center" my={2}>
+                <FormLabel mb="0">
+                  Use AI to generate email (powered by Gemini)
+                </FormLabel>
+                <Switch 
+                  colorScheme="purple" 
+                  isChecked={useAI} 
+                  onChange={() => setUseAI(!useAI)}
+                />
+              </FormControl>
+              
               <Divider my={2} />
               
               <FormControl isRequired>
@@ -200,8 +273,14 @@ Purdue University`;
               </FormControl>
               
               <Box display="flex" justifyContent="space-between" mt={2}>
-                <Button colorScheme="blue" variant="outline" onClick={handlePreview}>
-                  Preview Email
+                <Button 
+                  colorScheme="blue" 
+                  variant="outline" 
+                  onClick={handlePreview}
+                  isLoading={isGeneratingAI}
+                  loadingText="Generating"
+                >
+                  {useAI ? "Generate AI Email" : "Preview Email"}
                 </Button>
                 <Button colorScheme="purple" type="submit" isLoading={isLoading}>
                   Send Email
@@ -221,7 +300,7 @@ Purdue University`;
             position="relative"
           >
             <Heading as="h3" size="md" mb={4}>
-              Email Preview
+              {useAI ? "AI-Generated Email Preview" : "Email Preview"}
             </Heading>
             <CloseButton 
               position="absolute" 
@@ -231,7 +310,7 @@ Purdue University`;
             />
             <Textarea
               value={preview}
-              readOnly
+              onChange={(e) => setPreview(e.target.value)}
               height="400px"
               fontFamily="mono"
             />
