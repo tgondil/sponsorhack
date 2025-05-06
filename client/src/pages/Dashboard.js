@@ -1,6 +1,6 @@
 import React from 'react';
-import { Box, Container, Heading, Text, VStack, HStack, Button, 
-  useDisclosure, Avatar, Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, HStack, Button, 
+  useDisclosure, Avatar, Menu, MenuButton, MenuList, MenuItem, Flex, Divider } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import EmailForm from '../components/EmailForm';
@@ -17,46 +17,58 @@ const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <Container centerContent py={10}>
+      <Flex align="center" justify="center" minH="100vh">
         <Text>Loading...</Text>
-      </Container>
+      </Flex>
     );
   }
 
   return (
-    <Container maxW="container.lg" py={6}>
-      <HStack justifyContent="space-between" mb={6}>
-        <Box>
-          <Heading as="h1" size="xl" color="purple.700">
-            Hello World Hackathon
-          </Heading>
-          <Text color="gray.600">Sponsorship Email Dashboard</Text>
+    <Box minH="100vh" bg="gray.50">
+      <Box py={4} px={6} borderBottomWidth="1px" borderColor="gray.200" bg="white">
+        <Container maxW="container.md">
+          <HStack justifyContent="space-between">
+            <Heading as="h1" fontSize="2xl" fontWeight="600">
+              Hello World Hackathon
+            </Heading>
+            {user && (
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  variant="ghost"
+                  size="md"
+                  rightIcon={
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  }
+                >
+                  <HStack>
+                    <Avatar size="sm" name={user.name} bg="gray.200" color="gray.700" />
+                    <Text fontWeight="medium">{user.name}</Text>
+                  </HStack>
+                </MenuButton>
+                <MenuList shadow="md" borderColor="gray.200">
+                  <MenuItem onClick={logout} fontWeight="medium">Sign out</MenuItem>
+                </MenuList>
+              </Menu>
+            )}
+          </HStack>
+        </Container>
+      </Box>
+
+      <Container maxW="container.md" py={8}>
+        <Box mb={8}>
+          <Text fontSize="lg" color="gray.700">
+            Welcome back{user ? `, ${user.name.split(' ')[0]}` : ''}! Ready to connect with sponsors?
+          </Text>
         </Box>
-        {user && (
-          <Menu>
-            <MenuButton as={Button} variant="ghost" size="md">
-              <HStack>
-                <Avatar size="sm" name={user.name} />
-                <Text>{user.name}</Text>
-              </HStack>
-            </MenuButton>
-            <MenuList>
-              <MenuItem onClick={logout}>Logout</MenuItem>
-            </MenuList>
-          </Menu>
-        )}
-      </HStack>
-      
-      <Box mb={8}>
-        <Text fontSize="lg">
-          Welcome back{user ? `, ${user.name}` : ''}! Ready to connect with sponsors?
-        </Text>
-      </Box>
-      
-      <Box bg="white" p={8} borderRadius="lg" shadow="md">
-        <EmailForm />
-      </Box>
-    </Container>
+        
+        <Box bg="white" p={8} borderWidth="1px" borderColor="gray.200" borderRadius="md" shadow="sm">
+          <EmailForm />
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

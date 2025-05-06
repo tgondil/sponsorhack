@@ -18,6 +18,7 @@ import {
   GridItem,
   Divider,
   Link,
+  Flex,
 } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
 
@@ -217,166 +218,197 @@ Purdue University`;
   return (
     <Box>
       <VStack spacing={8} align="stretch">
-        <Box>
-          <Heading as="h2" size="lg" mb={4}>
+        <VStack spacing={1} align="flex-start">
+          <Heading as="h2" fontSize="xl" fontWeight="600">
             Send Sponsorship Email
           </Heading>
-          <Text color="gray.600" mb={6}>
+          <Text color="gray.600" fontSize="sm">
             Generate and send professional sponsorship request emails
           </Text>
+        </VStack>
           
-          <form onSubmit={handleSubmit}>
-            <VStack spacing={4} align="stretch">
-              <FormControl isRequired>
-                <FormLabel>Sponsor Name</FormLabel>
+        <form onSubmit={handleSubmit}>
+          <VStack spacing={6} align="stretch">
+            <Box>
+              <FormControl isRequired mb={4}>
+                <FormLabel fontSize="sm" fontWeight="medium">Sponsor Name</FormLabel>
                 <Input 
                   placeholder="e.g. Google, Microsoft, Meta" 
                   value={sponsorName}
                   onChange={(e) => setSponsorName(e.target.value)}
+                  size="md"
+                  bg="white"
                 />
               </FormControl>
               
               <FormControl isRequired>
-                <FormLabel>Sponsor Email</FormLabel>
+                <FormLabel fontSize="sm" fontWeight="medium">Sponsor Email</FormLabel>
                 <Input 
                   type="email" 
                   placeholder="sponsor@company.com" 
                   value={sponsorEmail}
                   onChange={(e) => setSponsorEmail(e.target.value)}
+                  size="md"
+                  bg="white"
                 />
               </FormControl>
-              
-              <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-                <GridItem>
-                  <FormControl isRequired>
-                    <FormLabel>Your Name</FormLabel>
-                    <Input 
-                      placeholder="Your full name" 
-                      value={senderName}
-                      onChange={(e) => setSenderName(e.target.value)}
-                    />
-                  </FormControl>
-                </GridItem>
-                <GridItem>
-                  <FormControl isRequired>
-                    <FormLabel>Your Position</FormLabel>
-                    <Input 
-                      placeholder="e.g. Organizer, Director, President" 
-                      value={senderPosition}
-                      onChange={(e) => setSenderPosition(e.target.value)}
-                    />
-                  </FormControl>
-                </GridItem>
-              </Grid>
-              
-              <FormControl display="flex" alignItems="center" my={2}>
-                <FormLabel mb="0">
-                  Use AI to generate email (powered by Gemini)
-                </FormLabel>
-                <Switch 
-                  colorScheme="purple" 
-                  isChecked={useAI} 
-                  onChange={() => setUseAI(!useAI)}
-                />
-              </FormControl>
-              
-              <Divider my={2} />
-              
-              <Heading as="h3" size="sm" mb={2}>
+            </Box>
+            
+            <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+              <GridItem>
+                <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="medium">Your Name</FormLabel>
+                  <Input 
+                    placeholder="Your full name" 
+                    value={senderName}
+                    onChange={(e) => setSenderName(e.target.value)}
+                    size="md"
+                    bg="white"
+                  />
+                </FormControl>
+              </GridItem>
+              <GridItem>
+                <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="medium">Your Position</FormLabel>
+                  <Input 
+                    placeholder="e.g. Organizer, Director, President" 
+                    value={senderPosition}
+                    onChange={(e) => setSenderPosition(e.target.value)}
+                    size="md"
+                    bg="white"
+                  />
+                </FormControl>
+              </GridItem>
+            </Grid>
+            
+            <FormControl display="flex" alignItems="center" my={2}>
+              <FormLabel mb="0" fontSize="sm" fontWeight="medium">
+                Use AI to generate email (powered by Gemini)
+              </FormLabel>
+              <Switch 
+                colorScheme="gray" 
+                isChecked={useAI} 
+                onChange={() => setUseAI(!useAI)}
+              />
+            </FormControl>
+            
+            <Divider />
+            
+            <Box>
+              <Text fontSize="sm" fontWeight="600" mb={2}>
                 Email Sending Credentials
-              </Heading>
-              <Text fontSize="sm" color="gray.600" mb={2}>
+              </Text>
+              <Text fontSize="xs" color="gray.500" mb={4}>
                 Your credentials are only used to send the email and are not stored.
               </Text>
               
-              <FormControl isRequired>
-                <FormLabel>Your Gmail Address</FormLabel>
+              <FormControl isRequired mb={4}>
+                <FormLabel fontSize="sm" fontWeight="medium">Your Gmail Address</FormLabel>
                 <Input 
                   type="email" 
                   placeholder="your.email@gmail.com" 
                   value={senderEmail}
                   onChange={(e) => setSenderEmail(e.target.value)}
+                  size="md"
+                  bg="white"
                 />
               </FormControl>
               
               <FormControl isRequired>
-                <FormLabel>Gmail App Password</FormLabel>
+                <FormLabel fontSize="sm" fontWeight="medium">Gmail App Password</FormLabel>
                 <Input 
                   type="password" 
                   placeholder="Your Gmail App Password" 
                   value={senderPassword}
                   onChange={(e) => setSenderPassword(e.target.value)}
+                  size="md"
+                  bg="white"
                 />
-                <Text fontSize="sm" color="gray.500" mt={1}>
+                <Text fontSize="xs" color="gray.500" mt={1}>
                   For Gmail, you need to use an App Password instead of your regular password.{" "}
                   <Link 
                     href="https://support.google.com/accounts/answer/185833" 
-                    color="blue.500"
+                    color="black"
+                    textDecoration="underline"
                     isExternal
                   >
                     Learn how to create one
                   </Link>
                 </Text>
               </FormControl>
-              
-              <Box display="flex" justifyContent="space-between" mt={4}>
-                <Button 
-                  colorScheme="blue" 
-                  variant="outline" 
-                  onClick={handlePreview}
-                  isLoading={isGeneratingAI}
-                  loadingText="Generating"
-                >
-                  {useAI ? "Generate AI Email" : "Preview Email"}
-                </Button>
-                <Button 
-                  colorScheme="purple" 
-                  type="submit" 
-                  isLoading={isLoading}
-                  isDisabled={!preview}
-                >
-                  Send Email
-                </Button>
-              </Box>
-            </VStack>
-          </form>
-        </Box>
+            </Box>
+            
+            <Flex justify="space-between" mt={4}>
+              <Button 
+                variant="outline" 
+                onClick={handlePreview}
+                isLoading={isGeneratingAI}
+                loadingText="Generating"
+                fontWeight="medium"
+                size="md"
+              >
+                {useAI ? "Generate AI Email" : "Preview Email"}
+              </Button>
+              <Button 
+                variant="solid" 
+                type="submit" 
+                isLoading={isLoading}
+                isDisabled={!preview}
+                fontWeight="medium"
+                size="md"
+              >
+                Send Email
+              </Button>
+            </Flex>
+          </VStack>
+        </form>
         
         {showPreview && (
           <Box 
+            mt={6}
             p={6} 
             border="1px" 
             borderColor="gray.200" 
             borderRadius="md" 
-            bg="gray.50"
+            bg="white"
             position="relative"
           >
-            <Heading as="h3" size="md" mb={4}>
-              {useAI ? "AI-Generated Email Preview" : "Email Preview"}
-            </Heading>
-            <HStack position="absolute" right="8px" top="8px">
-              <Button 
-                size="sm" 
-                colorScheme="gray" 
-                onClick={() => {
-                  // Copy to clipboard
-                  navigator.clipboard.writeText(preview);
-                  toast({
-                    title: "Copied to clipboard",
-                    status: "success",
-                    duration: 2000,
-                  });
-                }}
-              >
-                Copy
-              </Button>
-              <CloseButton onClick={() => setShowPreview(false)} />
-            </HStack>
+            <Flex justify="space-between" align="center" mb={4}>
+              <Text fontWeight="600" fontSize="sm">
+                {useAI ? "AI-Generated Email Preview" : "Email Preview"}
+              </Text>
+              <HStack>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => {
+                    // Copy to clipboard
+                    navigator.clipboard.writeText(preview);
+                    toast({
+                      title: "Copied to clipboard",
+                      status: "success",
+                      duration: 2000,
+                    });
+                  }}
+                >
+                  Copy
+                </Button>
+                <CloseButton size="sm" onClick={() => setShowPreview(false)} />
+              </HStack>
+            </Flex>
             <Textarea
               value={preview}
               onChange={(e) => setPreview(e.target.value)}
               height="400px"
               fontFamily="mono"
+              fontSize="sm"
+              bg="white"
+              border="none"
+              p={0}
+              _focus={{ 
+                boxShadow: "none",
+                border: "none" 
+              }}
             />
           </Box>
         )}
