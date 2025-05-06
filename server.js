@@ -79,84 +79,115 @@ app.get('/auth/logout', (req, res) => {
   res.json({ success: true });
 });
 
-// Standard email template function
-function generateEmailTemplate(sponsorName) {
+// Standard email template function (fallback)
+function generateEmailTemplate(sponsorName, senderName = "Hello World Team", senderPosition = "Organizer") {
   return `Dear ${sponsorName} Team,
 
-I'm reaching out on behalf of Hello World, the Midwest's largest beginner-friendly hackathon hosted at Purdue University. We're excited about the possibility of having ${sponsorName} as a sponsor for our upcoming event.
+I'm reaching out on behalf of Hello World, the Midwest's largest beginner-friendly hackathon hosted at Purdue University. We're excited about the possibility of having ${sponsorName} as a sponsor for our upcoming event, happening the weekend of September 27-29.
 
-Hello World is designed to make tech more accessible to students of all skill levels. As a beginner-friendly hackathon, we focus on providing a supportive environment where students can gain hands-on experience and build real-world projects.
+Hello World is designed to make tech more accessible to students of all skill levels. As a beginner-friendly hackathon, we focus on providing a supportive environment where students can gain hands-on experience and build real-world projects over the course of 36 hours.
 
-We're seeking various forms of sponsorship:
-• Financial support for venue, food, and event logistics
-• Cloud computing credits or platform access
-• APIs, dev tools, or software licenses
-• Company representatives to serve as mentors or judges
-• A company-sponsored challenge with prizes for "Best Use of ${sponsorName} Technology"
+We are specifically interested in gaining access to ${sponsorName}'s developer APIs and services that would help our participants build innovative projects:
 
-Why sponsor Hello World?
-• Connect with 800+ talented students from a top-tier university
-• Support tech education and inclusion initiatives
-• Increase brand visibility among emerging tech talent
-• Promote your technologies to the next generation of developers
-• Foster innovation and community building
+[CUSTOMIZE: Insert specific APIs from ${sponsorName} that hackathon participants could use]
+[CUSTOMIZE: Insert specific services that require credits/licenses]
+[CUSTOMIZE: Insert specific developer tools useful during a hackathon]
+
+We're seeking the following specific forms of sponsorship:
+- API access or increased rate limits for the APIs mentioned above
+- Credits for cloud/platform services that participants can use
+- Licenses for developer tools during the hackathon
+- Technical mentors familiar with these APIs and services
+- A challenge focused on creative use of your developer technologies
+
+Why this partnership benefits ${sponsorName}:
+- Students building real projects with your APIs and tools
+- Discovering creative new use cases for your developer products
+- Getting direct feedback on API usability and documentation
+- Expanding your developer community and user base
+- Showcasing your technologies to 800+ motivated student developers
 
 Our timeline:
-• March–May: Outreach and planning
-• June–August: Logistics and finalization
-• September: Event launch (exact date TBD)
+- March–May: Outreach and planning
+- June–August: Logistics and finalization
+- September 27-28: Event weekend
 
-We would love to discuss how ${sponsorName} can participate in making Hello World a success. Would you be available for a brief call to explore partnership opportunities?
+We would love to discuss specific opportunities for ${sponsorName} to provide API access, credits, or developer tools that would enable our participants to build amazing projects. Would you be available for a call to discuss the details of these technical sponsorship opportunities?
 
-Thank you for considering our request. We look forward to the possibility of collaborating with ${sponsorName}.
+Thank you for considering our request. We're excited about the possibility of featuring ${sponsorName}'s developer technologies at Hello World.
 
 Best regards,
-Hello World Hackathon Team
-Purdue University`;
+${senderName}
+${senderPosition}
+Purdue University
+
+[NOTE: Before sending, research and add SPECIFIC ${sponsorName} APIs, services requiring credits, and developer tools that would be directly useful for hackathon participants]`;
 }
 
 // Generate email using Google's Generative AI
-async function generateAIEmailTemplate(sponsorName) {
+async function generateAIEmailTemplate(sponsorName, senderName, senderPosition) {
   try {
     // For Gemini models
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
     const prompt = `
-You are writing a sponsorship request email for Hello World, the Midwest's largest beginner-friendly hackathon hosted at Purdue University. The email should be clear, professional, and tailored to ${sponsorName}.
+You are writing a sponsorship request email for Hello World, the Midwest's largest beginner-friendly hackathon hosted at Purdue University. The email should be clear, professional, and precisely tailored to ${sponsorName}.
+
+IMPORTANT: Research ${sponsorName} and identify ONLY:
+1. APIs they offer that students could build with
+2. Services that require credits/licenses for access
+3. Developer tools that would be directly useful during a hackathon
+
+Use this research to customize the email content. DO NOT mention products that don't fit these categories.
 
 Use the following information to guide the structure:
 
 1. Introduction
-Briefly introduce yourself and Hello World. Mention that the event is beginner-friendly, open to students of all skill levels, and held at Purdue.
+Briefly introduce yourself and Hello World. Mention that the event is beginner-friendly, open to students of all skill levels, and held at Purdue. The hackathon is happening the weekend of September 27th.
 
-2. Sponsorship Opportunities
-List the kinds of support you're seeking:
-- Financial support for venue, food, and logistics
-- Cloud computing credits (e.g. Google Cloud, Azure, AWS)
-- APIs, dev tools, or platform access (e.g. Gemini, Firebase, OpenAI, GitHub Copilot)
-- Company reps to serve as judges or mentors
-- A company-sponsored challenge and prize (e.g. "Best Use of [Company Tool]")
+2. Sponsorship Opportunities - FOCUS ON APIS, CREDITS, AND DEVELOPER TOOLS
+Research and identify ONLY the following from ${sponsorName}:
+- APIs that hackathon participants could build with (e.g., ML APIs, payment APIs, mapping APIs)
+- Cloud services or platforms that require credits for usage
+- Developer tools that students would use during the hackathon
+- Software licenses that would be valuable for participants
+
+For each item, briefly explain:
+- What specific projects/use cases students could build with it during the hackathon
+- Why access to this would enhance participants' hackathon experience
+
+Then, request ONLY these specific forms of sponsorship:
+- API access or increased rate limits for the identified APIs
+- Credits for identified cloud services or platforms
+- Licenses for identified developer tools or software
+- Technical mentors who are familiar with these specific APIs/services
+- A challenge specifically focused on creative use of these APIs/services
 
 3. Why Sponsor Hello World
-Emphasize the mission:
-- Making tech more accessible
-- Hands-on, real-world learning
-- Connection to talent early in their CS journey
-- Exposure to 800+ students at a top-tier university
-- Community building and innovation
+Focus ONLY on benefits directly related to the APIs and services you identified:
+- Students building real projects with ${sponsorName}'s APIs and tools
+- Identifying creative use cases for your developer products
+- Receiving technical feedback on API usability and documentation
+- Encouraging adoption of your developer technologies
+- Expanding your developer community
 
 4. Timeline
-Include key milestones:
+Include key milestones, with exact dates:
 - March–May: Outreach and planning
 - June–August: Logistics and finalization
-- September: Event launch (exact date TBD)
+- September 27-29: Event weekend
 
 5. Closing
-End with a note of appreciation and an invitation to connect or discuss further. Be warm and forward-looking.
+End with a specific request for the APIs, credits, or tools you identified. Be clear about what you're asking for and why it would benefit both parties.
 
-The tone should be enthusiastic but respectful, and the email should sound like it's coming from a student organizer passionate about tech education and inclusion.
+IMPORTANT FORMATTING REQUIREMENTS:
+1. Format the email as PLAIN TEXT only - no HTML or markdown
+2. Use simple formatting that will paste directly into an email client
+3. Use blank lines between paragraphs
+4. For bullet points, use simple dashes or asterisks
+5. Sign off with: "${senderName}, ${senderPosition}"
 
-Write a full email to ${sponsorName} based on this outline.
+Write a full email to ${sponsorName} based on these guidelines, focusing EXCLUSIVELY on APIs, services requiring credits, and developer tools that would be directly useful in a hackathon context. Do not include any products that don't fit these categories.
 `;
 
     const result = await model.generateContent(prompt);
@@ -166,20 +197,20 @@ Write a full email to ${sponsorName} based on this outline.
   } catch (error) {
     console.error('Error generating AI email:', error);
     // Fallback to standard template if AI generation fails
-    return generateEmailTemplate(sponsorName);
+    return generateEmailTemplate(sponsorName, senderName, senderPosition);
   }
 }
 
 // AI Email generation endpoint
 app.post('/api/generate-ai-email', async (req, res) => {
-  const { sponsorName } = req.body;
+  const { sponsorName, senderName, senderPosition } = req.body;
   
-  if (!sponsorName) {
-    return res.status(400).json({ success: false, message: 'Sponsor name is required' });
+  if (!sponsorName || !senderName || !senderPosition) {
+    return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
 
   try {
-    const emailContent = await generateAIEmailTemplate(sponsorName);
+    const emailContent = await generateAIEmailTemplate(sponsorName, senderName, senderPosition);
     res.status(200).json({ success: true, emailContent });
   } catch (error) {
     console.error('Error in AI email generation:', error);
@@ -187,46 +218,53 @@ app.post('/api/generate-ai-email', async (req, res) => {
   }
 });
 
-// Email sending endpoint - simplified to use API to send the email
+// Email sending endpoint
 app.post('/api/send-email', async (req, res) => {
-  if (!req.session || !req.session.user) {
-    return res.status(401).json({ success: false, message: 'User not authenticated' });
-  }
-
-  const { sponsorName, sponsorEmail, emailContent } = req.body;
+  const { sponsorName, sponsorEmail, senderName, senderPosition, emailContent, senderEmail, senderPassword } = req.body;
   
-  if (!sponsorName || !sponsorEmail) {
+  if (!sponsorName || !sponsorEmail || !senderName || !senderPosition || !senderEmail || !senderPassword) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
 
   try {
-    // Create transporter - Using Gmail directly
+    // Create transporter with the user's provided credentials
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: req.session.user.email,
-        // This would be a password/app password in real implementation
-        // For demonstration only, this won't actually send emails
-        pass: 'dummy-for-demonstration'
+        user: senderEmail,
+        pass: senderPassword // This should be an app password for Gmail
       }
     });
 
     // Email content
     const mailOptions = {
-      from: req.session.user.email,
+      from: `"${senderName}" <${senderEmail}>`,
       to: sponsorEmail,
       subject: `Hello World Hackathon - Sponsorship Opportunity for ${sponsorName}`,
-      text: emailContent || generateEmailTemplate(sponsorName)
+      text: emailContent || generateEmailTemplate(sponsorName, senderName, senderPosition)
     };
 
-    // In a real implementation, you would send the email
-    // For demonstration, we'll just simulate success
-    console.log('Would send email:', mailOptions);
+    // Send email
+    await transporter.sendMail(mailOptions);
     
-    res.status(200).json({ success: true, message: 'Email simulated successfully' });
+    res.status(200).json({ success: true, message: 'Email sent successfully!' });
   } catch (error) {
     console.error('Error sending email:', error);
-    res.status(500).json({ success: false, message: 'Failed to send email', error: error.message });
+    // Return a more helpful error message
+    let errorMessage = 'Failed to send email';
+    
+    if (error.code === 'EAUTH') {
+      errorMessage = 'Authentication failed. Check your email and password. For Gmail, use an App Password.';
+    } else if (error.code === 'ESOCKET') {
+      errorMessage = 'Network error. Check your internet connection.';
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: errorMessage, 
+      error: error.message,
+      code: error.code
+    });
   }
 });
 
