@@ -65,12 +65,10 @@ To send emails directly through the application, you'll need to set up an App Pa
 1. Go to your [Google Account](https://myaccount.google.com/)
 2. Select "Security" from the left navigation
 3. Under "Signing in to Google," select "2-Step Verification" and enable it if not already enabled
-4. Return to the Security page and select "App passwords"
-5. Click "Select app" and choose "Mail"
-6. Click "Select device" and choose "Other"
-7. Enter a name (e.g., "Hello World Email Sender") and click "Generate"
-8. Copy the 16-character password that appears
-9. Use this App Password (not your regular Gmail password) in the application
+4. Once enabled, scroll to the bottom of the "2-Step Verification" page to the "App Passwords" section and click the right arrow
+5. Enter an App Name (e.g., "Hello World Email Sender") and click "Create"
+6. Copy the 16-character password that appears
+7. Use this App Password (not your regular Gmail password) in the application
 
 ## Running the Application
 
