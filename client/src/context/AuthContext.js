@@ -5,7 +5,7 @@ import axios from 'axios';
 const AuthContext = createContext();
 
 // Google Client ID
-const GOOGLE_CLIENT_ID = '366694381799-aukid3rtlhbgljckmtdpk3uecukd6861.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = "994488702513-keqmohfva1bbv8a9k0n9tbkp0nanp74c.apps.googleusercontent.com";
 
 // Provider component
 export const AuthProvider = ({ children }) => {

@@ -10,7 +10,6 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3030;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 // Initialize the Google Generative AI
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
@@ -20,6 +19,7 @@ app.use(cors({
   origin: 'http://localhost:3000',
   credentials: true
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({
