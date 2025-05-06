@@ -207,7 +207,7 @@ app.post('/api/send-email', async (req, res) => {
       from: `"${senderName}" <${senderEmail}>`,
       to: sponsorEmail,
       subject: `Biggest 24 hour hackathon in the Midwest - Sponsorship Opportunity for ${sponsorName}`,
-      text: emailContent || generateEmailTemplate(sponsorName, senderName, senderPosition)
+      text: emailContent || defaultEmailTemplate(sponsorName, senderName, senderPosition)
     };
 
     // Send email
