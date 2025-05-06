@@ -1,6 +1,16 @@
-import React from 'react';
-import { Box, Container, Heading, Text, HStack, Button, 
-  useDisclosure, Avatar, Menu, MenuButton, MenuList, MenuItem, Flex, Divider } from '@chakra-ui/react';
+import React, { useEffect } from 'react';
+import { Box, 
+  Container, 
+  Heading, 
+  Text, 
+  HStack, 
+  Button, 
+  Avatar, 
+  Menu, 
+  MenuButton, 
+  MenuList, 
+  MenuItem, 
+  Flex } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import EmailForm from '../components/EmailForm';
@@ -9,7 +19,7 @@ const Dashboard = () => {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       navigate('/');
     }

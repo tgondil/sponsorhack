@@ -80,137 +80,103 @@ app.get('/auth/logout', (req, res) => {
 });
 
 // Standard email template function (fallback)
-function generateEmailTemplate(sponsorName, senderName = "Hello World Team", senderPosition = "Organizer") {
-  return `Dear ${sponsorName} Team,
+function defaultEmailTemplate(sponsorName, senderName = "Hello World Team", senderPosition = "Organizer") {
+  return `
+    Dear ${sponsorName} Team,
 
-I'm reaching out on behalf of Hello World, the Midwest's largest beginner-friendly hackathon hosted at Purdue University. We're excited about the possibility of having ${sponsorName} as a sponsor for our upcoming event, happening the weekend of September 27-29.
+    My name is ${senderName}, and I am ${senderPosition.toLowerCase().trim() === "organizer" ? "an" : "the"} ${senderPosition} of the 2025 Hello World hackathon hosted at Purdue University.
 
-Hello World is designed to make tech more accessible to students of all skill levels. As a beginner-friendly hackathon, we focus on providing a supportive environment where students can gain hands-on experience and build real-world projects over the course of 36 hours.
+    For Hello World, we are seeking sponsorship from ${sponsorName} in the following ways:
 
-We are specifically interested in gaining access to ${sponsorName}'s developer APIs and services that would help our participants build innovative projects:
+    1. Financial Support – Direct funding to help with venue, catering, and operational costs.  
+    2. Tools & Services – ${sponsorName}'s tools, APIs, or platform credits that students can use during their projects.  
+    3. Judging Panel – ${sponsorName} engineers or representatives to serve as judges for the final round.  
+    4. Dedicated ${sponsorName} Challenge & Prize – ${sponsorName} can sponsor a custom challenge category with a unique prize. For example:  
+      - Best Use of ${sponsorName} Technology – Awarded to the most innovative and impactful use of ${sponsorName}'s product or platform.
 
-[CUSTOMIZE: Insert specific APIs from ${sponsorName} that hackathon participants could use]
-[CUSTOMIZE: Insert specific services that require credits/licenses]
-[CUSTOMIZE: Insert specific developer tools useful during a hackathon]
+    About Hello World
 
-We're seeking the following specific forms of sponsorship:
-- API access or increased rate limits for the APIs mentioned above
-- Credits for cloud/platform services that participants can use
-- Licenses for developer tools during the hackathon
-- Technical mentors familiar with these APIs and services
-- A challenge focused on creative use of your developer technologies
+    Hello World is the Midwest’s largest beginner-friendly hackathon, designed to introduce students of all levels to the world of software development and innovation. Our goal is to create an inclusive and welcoming environment where participants can collaborate, build, and learn, regardless of their technical background.
 
-Why this partnership benefits ${sponsorName}:
-- Students building real projects with your APIs and tools
-- Discovering creative new use cases for your developer products
-- Getting direct feedback on API usability and documentation
-- Expanding your developer community and user base
-- Showcasing your technologies to 800+ motivated student developers
+    For the first time ever, Hello World is integrated with CS 180—Purdue’s largest computer science course, required for EVERY CS MAJOR. This partnership provides sponsors with direct access to every participant, enabling hands-on engagement and unmatched visibility across Purdue’s CS community.
 
-Our timeline:
-- March–May: Outreach and planning
-- June–August: Logistics and finalization
-- September 27-28: Event weekend
+    We focus on:
+    - Lowering Barriers to Entry: Making technology accessible to all students, regardless of experience.  
+    - Bridging Theory and Practice: Encouraging hands-on learning through real-world applications.  
+    - Career Advancement Opportunities: Helping students build projects, develop portfolios, and connect with industry professionals.  
+    - Confidence Gain & Skill Development: Providing a space for students to experiment, learn new technologies, and grow.  
+    - Community Growth & Collaboration: Strengthening Purdue’s tech community by fostering mentorship, teamwork, and innovation.
 
-We would love to discuss specific opportunities for ${sponsorName} to provide API access, credits, or developer tools that would enable our participants to build amazing projects. Would you be available for a call to discuss the details of these technical sponsorship opportunities?
+    Audience & Industry Collaboration  
+    - 800+ students ranging from complete beginners to experienced programmers.  
+    - Industry partnerships offering mentorship, technical challenges, and engagement opportunities.
 
-Thank you for considering our request. We're excited about the possibility of featuring ${sponsorName}'s developer technologies at Hello World.
+    Tentative Timeline  
+    1. March – May 2025 – Sponsorship outreach and planning  
+    2. June – August 2025 – Promotion, logistics, and partnerships finalized  
+    3. September 27–29 – Hackathon launch and execution
 
-Best regards,
-${senderName}
-${senderPosition}
-Purdue University
+    On behalf of the Hello World team, thank you for your time and consideration. We’d love to explore how ${sponsorName} can help empower the next generation of developers through this high-impact event.
 
-[NOTE: Before sending, research and add SPECIFIC ${sponsorName} APIs, services requiring credits, and developer tools that would be directly useful for hackathon participants]`;
+    Sincerely,  
+    ${senderName}  
+    ${senderPosition}, Hello World Hackathon  
+    Purdue University`;
 }
 
-// Generate email using Google's Generative AI
 async function generateAIEmailTemplate(sponsorName, senderName, senderPosition) {
   try {
-    // For Gemini models
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    
-    const prompt = `
-You are writing a sponsorship request email for Hello World, the Midwest's largest beginner-friendly hackathon hosted at Purdue University. The email should be clear, professional, and precisely tailored to ${sponsorName}.
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-IMPORTANT: Research ${sponsorName} and identify ONLY:
-1. APIs they offer that students could build with
-2. Services that require credits/licenses for access
-3. Developer tools that would be directly useful during a hackathon
+    const defaultTemplate = defaultEmailTemplate(sponsorName, senderName, senderPosition);
 
-Use this research to customize the email content. DO NOT mention products that don't fit these categories.
+    let modifiedPrompt = `
+      You are drafting a sponsorship outreach email for a major university hackathon. The email must sound professional, clear, and enthusiastic — not robotic. You must follow the structure and language of the template below **exactly**, but customize certain parts with accurate, company-specific references.
 
-Use the following information to guide the structure:
+      Do not skip any sections. Replace placeholders where required, especially where ${sponsorName}'s tools, APIs, or services are mentioned. Use real product names, not generic placeholders. Do basic research if needed to fill in product details.
 
-1. Introduction
-Briefly introduce yourself and Hello World. Mention that the event is beginner-friendly, open to students of all skill levels, and held at Purdue. The hackathon is happening the weekend of September 27th.
+      Here is the base template (follow it strictly):
 
-2. Sponsorship Opportunities - FOCUS ON APIS, CREDITS, AND DEVELOPER TOOLS
-Research and identify ONLY the following from ${sponsorName}:
-- APIs that hackathon participants could build with (e.g., ML APIs, payment APIs, mapping APIs)
-- Cloud services or platforms that require credits for usage
-- Developer tools that students would use during the hackathon
-- Software licenses that would be valuable for participants
+      ---
 
-For each item, briefly explain:
-- What specific projects/use cases students could build with it during the hackathon
-- Why access to this would enhance participants' hackathon experience
+      ${defaultTemplate}
 
-Then, request ONLY these specific forms of sponsorship:
-- API access or increased rate limits for the identified APIs
-- Credits for identified cloud services or platforms
-- Licenses for identified developer tools or software
-- Technical mentors who are familiar with these specific APIs/services
-- A challenge specifically focused on creative use of these APIs/services
+      ---
 
-3. Why Sponsor Hello World
-Focus ONLY on benefits directly related to the APIs and services you identified:
-- Students building real projects with ${sponsorName}'s APIs and tools
-- Identifying creative use cases for your developer products
-- Receiving technical feedback on API usability and documentation
-- Encouraging adoption of your developer technologies
-- Expanding your developer community
+      🚨 INSTRUCTIONS:
+      Use real company-specific context to customize this email.
 
-4. Timeline
-Include key milestones, with exact dates:
-- March–May: Outreach and planning
-- June–August: Logistics and finalization
-- September 27-29: Event weekend
+      From ${sponsorName}, identify:
+      - APIs that students could build with (e.g., AI, payments, maps)  
+      - Services that require platform credits  
+      - Developer tools or SDKs useful in a hackathon  
+      - Software licenses that students can use temporarily  
 
-5. Closing
-End with a specific request for the APIs, credits, or tools you identified. Be clear about what you're asking for and why it would benefit both parties.
+      Then inject those details into the relevant sponsorship bullets above. Do not leave placeholders like [insert tool here] — always fill in real names and examples. Avoid products that aren't developer-facing.
 
-IMPORTANT FORMATTING REQUIREMENTS:
-1. Format the email as PLAIN TEXT only - no HTML or markdown
-2. Use simple formatting that will paste directly into an email client
-3. Use blank lines between paragraphs
-4. For bullet points, use simple dashes or asterisks
-5. Sign off with: "${senderName}, ${senderPosition}"
+      Output the final email in plain text only — no markdown, no HTML.`
 
-Write a full email to ${sponsorName} based on these guidelines, focusing EXCLUSIVELY on APIs, services requiring credits, and developer tools that would be directly useful in a hackathon context. Do not include any products that don't fit these categories.
-`;
-
-    const result = await model.generateContent(prompt);
+    console.log(modifiedPrompt);
+    const result = await model.generateContent(modifiedPrompt);
     const response = await result.response;
     const text = response.text();
     return text;
   } catch (error) {
     console.error('Error generating AI email:', error);
-    // Fallback to standard template if AI generation fails
-    return generateEmailTemplate(sponsorName, senderName, senderPosition);
+    return defaultEmailTemplate(sponsorName, senderName, senderPosition);
   }
 }
 
 // AI Email generation endpoint
 app.post('/api/generate-ai-email', async (req, res) => {
-  const { sponsorName, senderName, senderPosition } = req.body;
-  
-  if (!sponsorName || !senderName || !senderPosition) {
-    return res.status(400).json({ success: false, message: 'Missing required fields' });
-  }
+  // useAI will always have some value on frontend so no need to check for that(either true or false)
+  const { sponsorName, senderName, senderPosition, useAI } = req.body;
+
+  // no need to check for sponsorName, senderName, senderPosition validity since it's alr checked on frontend
 
   try {
-    const emailContent = await generateAIEmailTemplate(sponsorName, senderName, senderPosition);
+    const emailContent = useAI ? await generateAIEmailTemplate(sponsorName, senderName, senderPosition)
+                               : defaultEmailTemplate(sponsorName, senderName, senderPosition);
     res.status(200).json({ success: true, emailContent });
   } catch (error) {
     console.error('Error in AI email generation:', error);
@@ -240,7 +206,7 @@ app.post('/api/send-email', async (req, res) => {
     const mailOptions = {
       from: `"${senderName}" <${senderEmail}>`,
       to: sponsorEmail,
-      subject: `Hello World Hackathon - Sponsorship Opportunity for ${sponsorName}`,
+      subject: `Biggest 24 hour hackathon in the Midwest - Sponsorship Opportunity for ${sponsorName}`,
       text: emailContent || generateEmailTemplate(sponsorName, senderName, senderPosition)
     };
 

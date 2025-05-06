@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   Box,
@@ -39,7 +39,7 @@ const EmailForm = () => {
   const toast = useToast();
 
   // Update sender name when user changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (user?.name) {
       setSenderName(user.name);
     }
@@ -48,43 +48,7 @@ const EmailForm = () => {
     }
   }, [user]);
 
-  const generateEmailTemplate = (name) => {
-    return `Dear ${name} Team,
-
-I'm reaching out on behalf of Hello World, the Midwest's largest beginner-friendly hackathon hosted at Purdue University. We're excited about the possibility of having ${name} as a sponsor for our upcoming event, happening the weekend of September 27-29.
-
-Hello World is designed to make tech more accessible to students of all skill levels. As a beginner-friendly hackathon, we focus on providing a supportive environment where students can gain hands-on experience and build real-world projects.
-
-We're seeking various forms of sponsorship:
-- Financial support for venue, food, and event logistics
-- Cloud computing credits or platform access
-- APIs, dev tools, or software licenses
-- Company representatives to serve as mentors or judges
-- A company-sponsored challenge with prizes for "Best Use of ${name} Technology"
-
-Why sponsor Hello World?
-- Connect with 800+ talented students from a top-tier university
-- Support tech education and inclusion initiatives
-- Increase brand visibility among emerging tech talent
-- Promote your technologies to the next generation of developers
-- Foster innovation and community building
-
-Our timeline:
-- March–May: Outreach and planning
-- June–August: Logistics and finalization
-- September 27-29: Event weekend
-
-We would love to discuss how ${name} can participate in making Hello World a success. Would you be available for a brief call to explore partnership opportunities?
-
-Thank you for considering our request. We look forward to the possibility of collaborating with ${name}.
-
-Best regards,
-${senderName}
-${senderPosition}
-Purdue University`;
-  };
-
-  const generateAIEmail = async () => {
+  const generateEmail = async () => {
     if (!sponsorName || !senderName || !senderPosition) {
       toast({
         title: 'Missing fields',
@@ -102,7 +66,8 @@ Purdue University`;
       const response = await axios.post('/api/generate-ai-email', {
         sponsorName,
         senderName,
-        senderPosition
+        senderPosition,
+        useAI
       }, { withCredentials: true });
       
       if (response.data.success) {
@@ -119,31 +84,8 @@ Purdue University`;
         duration: 5000,
         isClosable: true,
       });
-      // Fallback to standard template
-      setPreview(generateEmailTemplate(sponsorName));
-      setShowPreview(true);
     } finally {
       setIsGeneratingAI(false);
-    }
-  };
-
-  const handlePreview = async () => {
-    if (!sponsorName || !senderName || !senderPosition) {
-      toast({
-        title: 'Missing fields',
-        description: 'Please fill in all required fields to preview the email.',
-        status: 'warning',
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-    
-    if (useAI) {
-      await generateAIEmail();
-    } else {
-      setPreview(generateEmailTemplate(sponsorName));
-      setShowPreview(true);
     }
   };
 
@@ -341,7 +283,7 @@ Purdue University`;
             <Flex justify="space-between" mt={4}>
               <Button 
                 variant="outline" 
-                onClick={handlePreview}
+                onClick={async () => await generateEmail()}
                 isLoading={isGeneratingAI}
                 loadingText="Generating"
                 fontWeight="medium"
