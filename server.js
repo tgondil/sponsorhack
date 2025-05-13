@@ -127,15 +127,14 @@ function defaultEmailTemplate(sponsorName, senderName = "Hello World Team", send
 async function generateAIEmailTemplate(sponsorName, senderName, senderPosition) {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
     const defaultTemplate = defaultEmailTemplate(sponsorName, senderName, senderPosition);
 
     let modifiedPrompt = `
-      You are drafting a sponsorship outreach email for a major university hackathon. The email must sound professional, clear, and enthusiastic — not robotic. You must follow the structure and language of the template below **exactly**, but customize certain parts with accurate, company-specific references.
+      You are drafting a sponsorship outreach email for a major university hackathon. The email must sound professional, clear, and enthusiastic — not robotic. You must follow the structure and language of the template below EXACTLY, but customize certain parts with accurate, company-specific references.
 
       Do not skip any sections. Replace placeholders where required, especially where ${sponsorName}'s tools, APIs, or services are mentioned. Use real product names, not generic placeholders. Do basic research if needed to fill in product details.
 
-      Here is the base template (follow it strictly):
+      Here is the base template (FOLLOW IT STRICTLY):
 
       ---
 
@@ -156,7 +155,6 @@ async function generateAIEmailTemplate(sponsorName, senderName, senderPosition) 
 
       Output the final email in plain text only — no markdown, no HTML.`
 
-    console.log(modifiedPrompt);
     const result = await model.generateContent(modifiedPrompt);
     const response = await result.response;
     const text = response.text();
